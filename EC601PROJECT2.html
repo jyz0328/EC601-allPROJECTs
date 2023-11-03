@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Restaurant Discovery Plan website</title>
+    <style>
+      #map {
+        height: 400px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>My Google Maps Demo</h3>
+    <!--The div element for the map -->
+    <div id="map"></div>
+    <script>
+      function initMap() {
+        //create current location, and make a mark
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function (position) {
+            var userLatLng = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            var options = {
+              zoom: 8,
+              center: userLatLng
+            };
+            var map = new google.maps.Map(document.getElementById('map'), options);
+           //create current location, and make a mark
+            var marker = new google.maps.Marker({
+              position: userLatLng,
+              map: map,
+              title: "my location"
+            });
+
+            var infoWindow = new google.maps.InfoWindow();
+            var service = new google.maps.places.PlacesService(map);
+
+            google.maps.event.addListener(map, 'click', function (event) {
+              var latLng = event.latLng;
+               // Create a default red marker for the clicked location
+               var defaultMarker = new google.maps.Marker({
+                position: latLng,
+                map: map,
+              });
+
+              service.nearbySearch({
+                location: latLng,
+                radius: 1000, // Search radius is set as 1000 meters, which mean search restaurant inside 1000m
+                type: 'restaurant' // search restaurant
+              }, function (results, status) {
+    
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                  var content = '<h1>longitude: ' + latLng.lng() + '</h1><h1>latitude: ' + latLng.lat() + '</h1><h1>restaurant:</h1>';
+                  for (var i = 0; i < results.length; i++) {
+                    content += '<p>' + results[i].name + '</p>';
+                  }
+                  infoWindow.setContent(content);
+                  infoWindow.setPosition(latLng);
+                  infoWindow.open(map);
+                } else {
+                  // if no restaurant nearby,
+                  var noRestaurantMessage = '<h1>longitude: ' + latLng.lng() + '</h1><h1>latitude: ' + latLng.lat() + '</h1><p>no restaurant nearby</p>';
+                  infoWindow.setContent(noRestaurantMessage);
+                  infoWindow.setPosition(latLng);
+                  infoWindow.open(map);
+                }
+              });
+            });
+          });
+        }
+      }
+    </script>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqLZg5nF9bP7qiw9mTKGfrqdANINyHiH4&callback=initMap&libraries=places" >
+  </script>
+  </body>
+</html>
